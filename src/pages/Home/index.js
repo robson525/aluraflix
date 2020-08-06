@@ -1,38 +1,47 @@
-import React from 'react';
-import Menu from '../../components/Menu';
-import dadosIniciais from '../../data/dados_iniciais.json';
+import React, { useEffect, useState } from 'react';
+import PageDefault from '../../components/PageDefault';
 import BannerMain from '../../components/BannerMain';
 import Carousel from '../../components/Carousel';
-import Footer from '../../components/Footer';
+import categoriasRepository from '../../repositories/categorias';
 
 function Home() {
+  const [dadosIniciais, setDadosIniciais] = useState([]);
+
+  useEffect(() => {
+    categoriasRepository.getAllWithVideos()
+      .then((resposta) => {
+        setDadosIniciais(resposta);
+      });
+  }, []);
+
   return (
-    <div style={{ background: "#141414" }}>
-      <Menu />
+    <PageDefault>
+      {dadosIniciais.length === 0 && (<div>Loading...</div>)}
+      {dadosIniciais.map((categoria, indice) => {
+        if (indice === 0) {
+          return (
+            <div id={categoria.id}>
+              <BannerMain
+                videoTitle={categoria.videos[0].titulo}
+                url={categoria.videos[0].url}
+                videoDescription="O que é Front-end? Trabalhando na área"
+              />
 
-      <BannerMain 
-        videoTitle={dadosIniciais.categorias[0].videos[0].titulo}
-        url={dadosIniciais.categorias[0].videos[0].url}
-        videoDescription={"O que é Front-end? Trabalhando na área"}
-      />
-
-      <Carousel 
-        ignoreFirstVideo
-        category={dadosIniciais.categorias[0]}
-      />
-
-      <Carousel 
-        ignoreFirstVideo
-        category={dadosIniciais.categorias[1]}
-      />
-
-      <Carousel 
-        ignoreFirstVideo
-        category={dadosIniciais.categorias[2]}
-      />
-
-      <Footer />
-    </div>
+              <Carousel
+                ignoreFirstVideo
+                category={categoria}
+              />
+            </div>
+          );
+        }
+        return (
+          <Carousel
+            key={categoria.id}
+            category={categoria}
+          />
+        );
+      })}
+    </PageDefault>
   );
 }
 

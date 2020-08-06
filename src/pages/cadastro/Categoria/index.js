@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import PageDefault from '../../../components/PageDefault';
 import FormField from '../../../components/FormField';
 import Button from '../../../components/Button';
+import useForm from '../../../hooks/useForm';
+import categoriasRepository from '../../../repositories/categorias';
 
 function CadastroCategoria() {
   const valoresIniciais = {
@@ -12,29 +14,13 @@ function CadastroCategoria() {
   };
 
   const [categorias, setCategoria] = useState([]);
-  const [values, setValues] = useState(valoresIniciais);
-
-  function setValue(chave, valor) {
-    setValues({
-      ...values,
-      [chave]: valor,
-    });
-  }
-
-  function handleChange(event) {
-    setValue(
-      event.target.getAttribute('name'),
-      event.target.value,
-    );
-  }
+  const { values, handleChange, clearForm } = useForm(valoresIniciais);
 
   useEffect(() => {
-    const URL = 'http://localhost:8080/categorias';
-    fetch(URL)
-      .then(async (resposta) => {
-        const json = await resposta.json();
+    categoriasRepository.getAll()
+      .then((resposta) => {
         setCategoria([
-          ...json,
+          ...resposta,
         ]);
       });
   }, []);
@@ -53,7 +39,7 @@ function CadastroCategoria() {
           values,
         ]);
 
-        setValues(valoresIniciais);
+        clearForm();
       }}
       >
 
